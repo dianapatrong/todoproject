@@ -22,5 +22,5 @@ urlpatterns = [
     path('', todo_app_view, name='list'),
     path('addItem/', add_item),
     path('updateItem/<int:id>/', update_item, name='update_item'),
-    path('deleteTodoItem/<int:i>/', delete_item)
+    path('deleteItem/<int:i>/', delete_item, name='delete'),
 ]

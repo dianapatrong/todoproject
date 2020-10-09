@@ -31,7 +31,10 @@ def update_item(request, id):
 
 
 def delete_item(request, i):
-    print("REQUEST: ", request, i)
     item = TodoListItem.objects.get(id=i)
-    item.delete()
-    return redirect('/')
+    if request.method == 'POST':
+        item.delete()
+        return redirect('/')
+    context = {'item': item}
+    return render(request, 'delete.html', context)
+
