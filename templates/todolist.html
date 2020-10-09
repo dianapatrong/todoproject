@@ -54,17 +54,15 @@
         <input class="btn btn-info" type="submit" name="Create Task">
     </form>
 
-    <div class="todo-list">
-        {% for item in items %}
-            <div>
-                <a href="{% url 'update_item' item.id %}">Update</a>
-                <a href="{% url 'delete' item.id %}">Delete</a>
-                {% if item.complete == True%}
-                <strike>{{item}}</strike>
-                {% else %}
-                <span>{{item}}</span>
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
+    {% for item in items %}
+        <div>
+            <a class="btn btn-sm btn-info" href="{% url 'update_item' item.id %}">Update</a>
+            <a class="btn btn-sm btn-danger" href="{% url 'delete' item.id %}">Delete</a>
+            {% if item.complete == True%}
+            <strike>{{item}}</strike>
+            {% else %}
+            <span>{{item}}</span>
+            {% endif %}
+        </div>
+    {% endfor %}
 </div>
