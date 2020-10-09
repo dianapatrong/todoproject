@@ -1,16 +1,14 @@
-<h1>My To Do List</h1>
-<ul>
-    {% for i in all_items %}
-    <li>
-        {{i.content}}
-        <form action="/deleteTodoItem/{{i.id}}/" method="post">{% csrf_token %}
-            <input type="submit" value="Delete">
-        </form>
-    </li>
-    {% endfor %}
-</ul>
-
-<form action="/addTodoItem/" method="post">{% csrf_token %}
-    <input type="text" name="content">
-    <input type="submit" value="Add Todo Item">
+<h1>To Do List</h1>
+<form method="POST" action="/addItem/">
+    {% csrf_token %}
+    {{form.title}}
+    <input type="submit" name="Create Task">
 </form>
+
+
+{% for item in items %}
+    <div>
+        <p>{{item}}</p>
+    </div>
+{% endfor %}
+

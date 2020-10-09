@@ -1,22 +1,24 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import TodoListItem
-from django.http import HttpResponseRedirect
+from .forms import TodoListItemForm
 
 
 def todo_app_view(request):
     all_todo_items = TodoListItem.objects.all()
-    return render(request, 'todolist.html', {'all_items': all_todo_items})
+    form = TodoListItemForm()
+    context = {'items': all_todo_items, 'form': form}
+    return render(request, 'todolist.html', context)
 
 
 def add_todo_view(request):
-    todo_content = request.POST['content']
-    new_todo_item = TodoListItem(content=todo_content)
-    new_todo_item.save()
-    return HttpResponseRedirect('/')
+    form = TodoListItemForm(request.POST)
+    if form.is_valid():
+        form.save()
+    return redirect('/')
 
 
 def delete_todo_view(request, i):
     print("REQUEST: ", request, i)
     item = TodoListItem.objects.get(id=i)
     item.delete()
-    return HttpResponseRedirect('/')
+    return redirect('/')
