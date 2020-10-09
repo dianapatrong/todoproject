@@ -17,6 +17,19 @@ def add_todo_view(request):
     return redirect('/')
 
 
+def update_task(request, id):
+    item = TodoListItem.objects.get(id=id)
+    form = TodoListItemForm(instance=item)
+
+    if request.method == 'POST':
+        form = TodoListItemForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+    context = {'form': form}
+    return render(request, 'update_todolist.html', context)
+
+
 def delete_todo_view(request, i):
     print("REQUEST: ", request, i)
     item = TodoListItem.objects.get(id=i)
