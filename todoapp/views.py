@@ -10,14 +10,14 @@ def todo_app_view(request):
     return render(request, 'todolist.html', context)
 
 
-def add_todo_view(request):
+def add_item(request):
     form = TodoListItemForm(request.POST)
     if form.is_valid():
         form.save()
     return redirect('/')
 
 
-def update_task(request, id):
+def update_item(request, id):
     item = TodoListItem.objects.get(id=id)
     form = TodoListItemForm(instance=item)
 
@@ -30,7 +30,7 @@ def update_task(request, id):
     return render(request, 'update_todolist.html', context)
 
 
-def delete_todo_view(request, i):
+def delete_item(request, i):
     print("REQUEST: ", request, i)
     item = TodoListItem.objects.get(id=i)
     item.delete()
