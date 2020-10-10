@@ -48,6 +48,7 @@
 </style>
 
 <div class="center-column">
+    <h1><b><center>To-do list</center></b></h1>
     <form method="POST" action="/addItem/">
         {% csrf_token %}
         {{form.title}}
