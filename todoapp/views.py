@@ -11,16 +11,16 @@ def todo_app_view(request):
 
 
 def add_item(request):
-    form = TodoListItemForm(request.POST)
-    if form.is_valid():
-        form.save()
-    return redirect('/')
+    if request.method == 'POST':
+        form = TodoListItemForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect('/')
 
 
 def update_item(request, id):
     item = TodoListItem.objects.get(id=id)
     form = TodoListItemForm(instance=item)
-
     if request.method == 'POST':
         form = TodoListItemForm(request.POST, instance=item)
         if form.is_valid():
@@ -30,11 +30,10 @@ def update_item(request, id):
     return render(request, 'update_todolist.html', context)
 
 
-def delete_item(request, i):
-    item = TodoListItem.objects.get(id=i)
+def delete_item(request, id):
+    item = TodoListItem.objects.get(id=id)
     if request.method == 'POST':
         item.delete()
         return redirect('/')
     context = {'item': item}
     return render(request, 'delete.html', context)
-
