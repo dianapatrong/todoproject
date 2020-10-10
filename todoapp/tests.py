@@ -60,3 +60,4 @@ class ViewsTestCase(TestCase):
         response = self.client.post(self.delete_item_url)
         self.assertEqual(response.status_code, 302)
         self.assertFalse(TodoListItem.objects.filter(id=10).exists())
+
