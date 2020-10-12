@@ -1,0 +1,35 @@
+---
+- name: ensure apt cache is up to date
+  apt: update_cache=yes
+
+- name: ensure packages are installed
+  apt:
+    name: '{{item}}'
+  loop:
+    - postgresql
+    - libpq-dev
+    - python-psycopg2
+    - python3-dev
+    - python-dev
+    - python3-venv
+
+- name: ensure database is created
+  become_user: postgres
+  postgresql_db:
+    name: todolist
+
+- name: ensure user has access to database
+  become_user: postgres
+  postgresql_user:
+    db: todolist
+    name: todolist
+    password: todolist
+    priv: ALL
+
+- name: create virtualenv
+  command: python3 -m venv ~/venv
+
+- name: install requirements
+  pip:
+    requirements: /todoproject/requirements.txt
+    executable: ~/venv/bin/pip

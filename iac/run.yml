@@ -1,0 +1,8 @@
+---
+- hosts: todolist-app
+  become: true
+  roles:
+    - role: todo/install
+      tags: install
+    - role: todo/healthchecks
+      tags: check
