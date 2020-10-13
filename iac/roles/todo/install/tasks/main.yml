@@ -1,8 +1,8 @@
 ---
-- name: ensure apt cache is up to date
+- name: Update apt
   apt: update_cache=yes
 
-- name: ensure packages are installed
+- name: Install packages
   apt:
     name: '{{item}}'
   loop:
@@ -15,18 +15,18 @@
     - python-dev
     - python3-venv
 
-- name: ensure the PostgreSQL service is running
+- name: Start postgreSQL service
   service:
     name: postgresql
     state: started
     enabled: yes
 
-- name: ensure database is created
+- name: Create database
   become_user: postgres
   postgresql_db:
     name: todo_proj
 
-- name: create a PostgreSQL user for this project
+- name: Create a PostgreSQL user for this project
   become: true
   become_user: postgres
   postgresql_user:
@@ -37,10 +37,10 @@
   notify:
     - restart postgresql
 
-- name: create virtualenv
+- name: Create virtualenv
   command: python3 -m venv /home/vagrant/venv
 
-- name: install requirements
+- name: Install requirements from requirements.txt file
   pip:
     requirements: /home/vagrant/todoproject/requirements.txt
     executable: /home/vagrant/venv/bin/pip
@@ -59,6 +59,6 @@
     virtualenv: /home/vagrant/venv
   become: yes
 
-- name: runserver django
+- name: Runserver django in the background
   shell: nohup /home/vagrant/venv/bin/python /home/vagrant/todoproject/manage.py runserver 0.0.0.0:8000 &
   become: yes
