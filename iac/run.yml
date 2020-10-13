@@ -4,7 +4,5 @@
   roles:
     - role: todo/install
       tags: install
-    - role: todo/healthchecks
-      tags: check
   environment:
     DB_USER: postgres
