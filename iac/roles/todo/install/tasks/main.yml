@@ -7,29 +7,47 @@
     name: '{{item}}'
   loop:
     - postgresql
+    - postgresql-contrib
+    - git
     - libpq-dev
     - python-psycopg2
     - python3-dev
     - python-dev
     - python3-venv
 
+- name: ensure the PostgreSQL service is running
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+
 - name: ensure database is created
   become_user: postgres
   postgresql_db:
-    name: todolist
+    name: todo_proj
 
-- name: ensure user has access to database
+- name: create a PostgreSQL user for this project
+  become: true
   become_user: postgres
   postgresql_user:
-    db: todolist
-    name: todolist
-    password: todolist
+    db: todo_proj
+    name: todouser
+    password: supersecretpassword
     priv: ALL
+  notify:
+    - restart postgresql
 
 - name: create virtualenv
-  command: python3 -m venv ~/venv
+  command: python3 -m venv /home/vagrant/venv
 
 - name: install requirements
   pip:
-    requirements: /todoproject/requirements.txt
-    executable: ~/venv/bin/pip
+    requirements: /home/vagrant/todoproject/requirements.txt
+    executable: /home/vagrant/venv/bin/pip
+
+- name: Run Django database migrations
+  django_manage:
+    command: migrate
+    app_path: /home/vagrant/todoproject/
+    virtualenv: /home/vagrant/venv
+    settings: todoproject.settings
