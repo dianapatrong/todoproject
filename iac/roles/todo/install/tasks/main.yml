@@ -51,3 +51,14 @@
     app_path: /home/vagrant/todoproject/
     virtualenv: /home/vagrant/venv
     settings: todoproject.settings
+
+- name: Get all static files
+  django_manage:
+    app_path: /home/vagrant/todoproject/
+    command: collectstatic
+    virtualenv: /home/vagrant/venv
+  become: yes
+
+- name: runserver django
+  shell: nohup /home/vagrant/venv/bin/python /home/vagrant/todoproject/manage.py runserver 0.0.0.0:8000 &
+  become: yes

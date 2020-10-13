@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
     server.vm.box = "ubuntu/bionic64"
     server.vm.hostname = "todolist-app"
     server.vm.network :private_network, ip: "20.20.20.2"
-    server.vm.network "forwarded_port", guest: 22, host: 2222, host_ip: "127.0.0.1", id: 'ssh'
+    server.vm.network "forwarded_port", guest: 8000, host: 8080, host_ip: "127.0.0.1"
     #config.vm.synced_folder ".", "/home/vagrant/code", type: "virtualbox"
     config.vm.provider "vmware_desktop" do |vmware|
       vmware.vmx["memsize"] = "2048"
