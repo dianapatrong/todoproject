@@ -10,3 +10,4 @@ will create the table in database using the commands which have been generated b
 
 
  python manage.py createsuperuser
+ dummy
