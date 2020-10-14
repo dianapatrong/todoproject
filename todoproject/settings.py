@@ -75,17 +75,6 @@ WSGI_APPLICATION = 'todoproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'todo_proj',
-        'USER': 'todouser',
-        'PASSWORD': 'supersecretpassword',
-        'HOST': os.environ['HOST'],
-        'PORT': '5432',
-    }
-}
-
 if os.environ.get('GITHUB_WORKFLOW'):
     DATABASES = {
         'default': {
@@ -95,6 +84,17 @@ if os.environ.get('GITHUB_WORKFLOW'):
            'PASSWORD': 'postgres',
            'HOST': '127.0.0.1',
            'PORT': '5432',
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'todo_proj',
+            'USER': 'todouser',
+            'PASSWORD': 'supersecretpassword',
+            'HOST': os.environ['HOST'],
+            'PORT': '5432',
         }
     }
 
