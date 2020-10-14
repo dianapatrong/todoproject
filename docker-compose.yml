@@ -3,6 +3,7 @@ version: "3.8"
 services:
   web:
     build: .
+    image: patrondiana13/todolist-dsti-devops:latest
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
@@ -10,6 +11,8 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    environment:
+      - HOST=db
 
   db:
     image: postgres
