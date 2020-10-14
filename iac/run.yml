@@ -1,0 +1,8 @@
+---
+- hosts: todolist-app
+  become: true
+  roles:
+    - role: todo/install
+      tags: install
+  environment:
+    DB_USER: postgres
