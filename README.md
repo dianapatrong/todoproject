@@ -23,19 +23,22 @@ expects a request and a response.
 ## Setup local environment 
 
 Install postgress
-
+Install requirements 
 
 ## CI/CD
-**Travis CI** is a continuous integration service used to build and test applications hosted on GitHub. 
-Travis CI supports integration with other tools such as coverage analyzers. In this case I used it 
-to verify the integration of my code by an automated build which run the unit tests. 
+**GitHub Actions** is a continuous integration that makes it easy to automate all your software workflows. 
+It builds, test and deploys code right from GitHub.
 
-The `.travis.yml` file was configured to use Python 3.7, install all needed dependencies, create a postgresql service, 
- along with a database that will only serve for testing purposes and finally the run of the unit tests.
-Builds were configure to only run when a pull request is created. 
+> NOTE: I had used Travis CI but after a few issues with the provisioning of builds out of knowhere
+> I decided to change to GitHub Actions
 
 **Heroku** is a cloud platform that lets you build, deliver, monitor and scale applications. For this app, Heroku
 was configure to deploy the application after a merge to master from a PR. 
+
+For this project, the workflows are described in [.github/workflows](.github/workflows), there are two different types:
+* Run unit tests: will only run on Pull Requests and when a merge to master happens
+* Deploy to Heroku: will only run when there's a merge to master 
+
 
 Useful commands: 
 * `heroku run bash -a todolist-dsti-devops` 
@@ -69,3 +72,13 @@ https://stackoverflow.com/questions/38944551/steps-to-troubleshoot-django-db-uti
 psql todo_proj -c "GRANT ALL ON ALL TABLES IN SCHEMA public to todouser;"
 psql todo_proj -c "GRANT ALL ON ALL SEQUENCES IN SCHEMA public to todouser;"
 psql todo_proj -c "GRANT ALL ON ALL FUNCTIONS IN SCHEMA public to todouser;"
+
+
+Creating test database for alias 'default'...
+Got an error creating the test database: permission denied to create database
+
+
+ psql -d todo_proj -U dpatron 
+ todo_proj=# ALTER USER todouser CREATEDB; 
+
+""
