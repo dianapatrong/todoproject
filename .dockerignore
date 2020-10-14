@@ -1,0 +1,8 @@
+!README.md
+.github/*
+.vagrant/*
+iac/*
+staticfiles/*
+runtime.txt
+Vagrantfile
+ubuntu-bionic-18.04-cloudimg-console.log
