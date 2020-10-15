@@ -48,13 +48,53 @@ Useful commands:
 **Vagrant** is a tool for building and maintaining portable virtual software development environments, it 
 also has integration with **Ansible** as a provisioner for these virtual machines. 
 
-### Step-by-step: 
-1. Install Virtualbox
-2. Install Vagrant
-3. Clone the repository `git clone git@github.com:dianapatrong/todoproject.git` and `cd todoproject`
-4. Run: `vagrant up`
-5. Wait for it to provision and the app will be running on: http://20.20.20.2:8000/
+To run the application make sure you have Virtualbox and Vagrant already installed and `cd` into the root directory
+of the project: 
+```
+$ vagrant up
+```
+Wait for it to provision and the app will be running on: http://20.20.20.2:8000/ and http://localhost:8080/
+this is because we have the following lines in the [Vagrantfile](Vagrantfile): 
+```
+server.vm.network :private_network, ip: "20.20.20.2"
+server.vm.network "forwarded_port", guest: 8000, host: 8080, host_ip: "127.0.0.1"
+```
+* **private_network** allows to access the guest machine with a private address **20.20.20.2:8080**
+* **forwarded_port** will allow accessing port **8000** on the guest via port **8080** on the host.
 
+For the cleanup run: 
+```
+$ vagrant destroy
+```
+
+## Dockerizing the application
+
+* [Dockerfile](Dockerfile) builds an image based on a Python image on Docker Hub, copies the code for the 
+application and installs requierements. 
+
+* [.dockerignore](.dockerignore)  excludes files and directories that match patterns in it.
+
+* [docker-compose.yml](docker-compose.yml) describes the services that makes the application and the ports in which
+the services will be exposed, in this case I have the **django web application** exposed on port **8000** and the
+ postgres db exposed on port **5432**.
+
+The image for the dockerfile can be found in **DockerHub** and can be downloaded via:
+`docker pull patrondiana13/todolist-dsti-devops`
+
+To run the application be sure to bee in the root directory of the project and execute the following commands: 
+```
+$ docker-compose build 
+$ docker-compose up
+```
+
+After that you can go to http://0.0.0.0:8000/ to test the application
+
+For the cleanup run: 
+```
+$ docker-compose down
+```
+
+![Docker Architecture](images/docker-architecture.png)
 
 ## ERRORS 
 psql -h localhost -U postgres
