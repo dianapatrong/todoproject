@@ -5,4 +5,4 @@
     - role: todo/install
       tags: install
   environment:
-    DB_USER: postgres
+    HOST: 127.0.0.1
