@@ -66,7 +66,7 @@ For the cleanup run:
 ```
 $ vagrant destroy
 ```
-
+![Infrastructure as code architecutre](images/infra-as-code-architecture.png)
 ## Dockerizing the application
 
 * [Dockerfile](Dockerfile) builds an image based on a Python image on Docker Hub, copies the code for the 
