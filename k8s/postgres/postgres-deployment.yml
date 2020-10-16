@@ -18,9 +18,10 @@ spec:
           image: postgres
           env:
             - name: HOST
-              value: 127.0.0.1
-            - name: POSTGRES_PASSWORD
-              value: supersecretpassword
+              value: postgres-service
+          envFrom:
+            - configMapRef:
+                name: postgres-configuration
           ports:
             - containerPort: 5432
           volumeMounts:

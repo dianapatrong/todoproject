@@ -21,6 +21,6 @@ spec:
             - containerPort: 8000
           env:
             - name: HOST
-              value:  0.0.0.0
+              value: postgres-service
           command: ["./manage.py", "runserver", "0.0.0.0:8000"]
-      #restartPolicy: Always
+      restartPolicy: Always

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-configuration
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: todo_proj
+  POSTGRES_USER: todouser
+  POSTGRES_PASSWORD: supersecretpassword

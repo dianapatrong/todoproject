@@ -8,9 +8,9 @@ spec:
       containers:
         - name: django
           image: patrondiana13/todolist-dsti-devops:latest
-          command: ['python', 'manage.py', 'migrate']
+          command: ["./manage.py", "migrate"]
           env:
             - name: HOST
-              value: 0.0.0.0
+              value: postgres-service
       restartPolicy: Never
   backoffLimit: 5
