@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: postgres-pod
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
