@@ -17,6 +17,7 @@ spec:
       containers:
         - name: django
           image: patrondiana13/todolist-dsti-devops:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           env:

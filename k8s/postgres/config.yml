@@ -5,6 +5,6 @@ metadata:
   labels:
     app: postgres
 data:
-  POSTGRES_DB: todo_proj
+  POSTGRES_DB: postgres
   POSTGRES_USER: todouser
   POSTGRES_PASSWORD: supersecretpassword
