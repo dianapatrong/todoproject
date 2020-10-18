@@ -4,7 +4,7 @@ services:
   web:
     build: .
     image: patrondiana13/todolist-dsti-devops:latest
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "sleep 3s && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:
@@ -19,6 +19,6 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=todo_proj
+      - POSTGRES_DB=postgres
       - POSTGRES_USER=todouser
       - POSTGRES_PASSWORD=supersecretpassword
