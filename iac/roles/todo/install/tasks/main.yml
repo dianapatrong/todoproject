@@ -2,6 +2,14 @@
 - name: Update apt
   apt: update_cache=yes
 
+- name: Clone a private repository
+  git:
+    repo: git@github.com:dianapatrong/todoproject.git
+    dest: $HOME/todoproject
+    version: master
+    accept_hostkey: yes
+  become: no
+
 - name: Install packages
   apt:
     name: '{{item}}'
