@@ -85,8 +85,13 @@ To run the application be sure to bee in the root directory of the project and e
 ```
 $ docker-compose build 
 $ docker-compose up
+
+ docker-compose up -d db 
+ docker-compose up -d web
 ```
 
+> NOTE: `depends_on` does not wait for db to be "ready" before starting web - only until it's running
+> 
 After that you can go to http://0.0.0.0:8000/ to test the application
 
 For the cleanup run: 
@@ -96,8 +101,24 @@ $ docker-compose down
 
 ![Docker Architecture](images/docker-architecture.png)
 
+## Kubernetes with Minikube
+
+````
+$ minikube start --vm-driver=virtualbox
+$ kubectl apply -f k8/postgres
+$ kubectl apply -f k8/webapp
+$ kubectl get services
+$ minikube service django-service
+````
+
+
+kubectl apply -f k8s/deployment.yml
+kubectl get pods
+
 ## ERRORS 
 psql -h localhost -U postgres
+CREATE USER todouser WITH PASSWORD 'supersecretpassword' CREATEDB;
+CREATE DATABASE todo_proj; 
 
 
 
