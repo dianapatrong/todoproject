@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrations
+spec:
+  template:
+    spec:
+      containers:
+        - name: django
+          image: patrondiana13/todolist-dsti-devops:latest
+          command: ["./manage.py", "migrate"]
+          env:
+            - name: HOST
+              value: postgres-service
+      restartPolicy: Never
+  backoffLimit: 5

@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
       vb.customize ["modifyvm", :id, "--name", "todolist-app", "--memory", "1024"]
     end
   end
-  config.vm.provision "file", source: ".", destination: "$HOME/todoproject"
+  config.ssh.forward_agent = true
   config.vm.define "todolist-app" do |server|
     server.vm.box = "ubuntu/bionic64"
     server.vm.hostname = "todolist-app"

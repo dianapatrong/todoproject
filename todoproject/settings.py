@@ -90,7 +90,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'todo_proj',
+            'NAME': 'postgres',
             'USER': 'todouser',
             'PASSWORD': 'supersecretpassword',
             'HOST': os.environ['HOST'],
