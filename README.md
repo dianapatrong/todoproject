@@ -85,13 +85,10 @@ To run the application be sure to bee in the root directory of the project and e
 ```
 $ docker-compose build 
 $ docker-compose up
-
- docker-compose up -d db 
- docker-compose up -d web
 ```
 
 > NOTE: `depends_on` does not wait for db to be "ready" before starting web - only until it's running
-> 
+
 After that you can go to http://0.0.0.0:8000/ to test the application
 
 For the cleanup run: 
@@ -110,10 +107,7 @@ $ kubectl apply -f k8/webapp
 $ kubectl get services
 $ minikube service django-service
 ````
-
-
-kubectl apply -f k8s/deployment.yml
-kubectl get pods
+The last command will open a browser with the application running 
 
 ## ERRORS 
 psql -h localhost -U postgres
