@@ -25,6 +25,26 @@ expects a request and a response.
 Install postgress
 Install requirements 
 
+### Run unit tests
+To run the unit tests: 
+
+```
+ $ export HOST=localhost
+ $ python manage.py test
+```
+
+The output should be something like: 
+```
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.312s
+
+OK
+Destroying test database for alias 'default'...
+```
+
 ## CI/CD
 **GitHub Actions** is a continuous integration that makes it easy to automate all your software workflows. 
 It builds, test and deploys code right from GitHub.
@@ -36,8 +56,8 @@ It builds, test and deploys code right from GitHub.
 was configure to deploy the application after a merge to master from a PR. 
 
 For this project, the workflows are described in [.github/workflows](.github/workflows), there are two different types:
-* Run unit tests: will only run on Pull Requests and when a merge to master happens
-* Deploy to Heroku: will only run when there's a merge to master 
+* Run unit tests: will only run only on Pull Requests and when a merge to master happens
+* Deploy to Heroku: will be trigger only when there's a merge to master 
 
 
 Useful commands: 
@@ -99,15 +119,37 @@ $ docker-compose down
 ![Docker Architecture](images/docker-architecture.png)
 
 ## Kubernetes with Minikube
+**Kubernetes** aims to provide a platform for automating deployment, scaling, and operations of application containers 
+across clusters of hosts. It works with a range of container tools, including Docker.
 
+**Minikube** is a tool that lets you run Kubernetes locally. Minikube runs a single-node Kubernetes cluster on your personal computer
+
+To get started execute the following commands, make sure you are on the root directory of the project: 
 ````
 $ minikube start --vm-driver=virtualbox
-$ kubectl apply -f k8/postgres
-$ kubectl apply -f k8/webapp
+$ kubectl apply -f k8s/postgres
+$ kubectl apply -f k8s/webapp
 $ kubectl get services
 $ minikube service django-service
 ````
-The last command will open a browser with the application running 
+
+The last command will open a browser with the application and the following info: 
+
+````
+|-----------|----------------|-------------|-----------------------------|
+| NAMESPACE |      NAME      | TARGET PORT |             URL             |
+|-----------|----------------|-------------|-----------------------------|
+| default   | django-service |        8000 | http://192.168.99.105:32697 |
+|-----------|----------------|-------------|-----------------------------|
+🎉  Opening service default/django-service in default browser...
+````
+
+For the cleanup: 
+```
+$ kubectl delete -f k8s/postgres
+$ kubectl delete -f k8s/webapp
+$ minikube delete
+```
 
 ## ERRORS 
 psql -h localhost -U postgres
