@@ -1,14 +1,48 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: django-service
+  name: todolist
+  labels:
+    app: todolist
+    service: todolist
 spec:
   selector:
-    app: django-pod
+    app: todolist
   ports:
-  - name: http-django
+  - name: http
     protocol: TCP
     port: 8000
     targetPort: 8000
   type: NodePort
-
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: todolist
+spec:
+  hosts:
+    - todolist
+  http:
+  - route:
+    - destination:
+        host: todolist
+        subset: v1
+      weight: 50
+    - destination:
+        host: todolist
+        subset: v2
+      weight: 50
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: todolist
+spec:
+  host: todolist
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2

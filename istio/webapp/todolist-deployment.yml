@@ -1,22 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: django
+  name: todolist-v1
   labels:
-    app: django
+    app: todolist
+    version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: django-pod
+      app: todolist
+      version: v1
   template:
     metadata:
       labels:
-        app: django-pod
+        app: todolist
+        version: v1
     spec:
       containers:
-        - name: django
-          image: patrondiana13/todolist-dsti-devops:latest
+        - name: todolist
+          image: patrondiana13/todolist-dsti-devops:v1
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
@@ -24,6 +27,37 @@ spec:
             - name: HOST
               value: postgres-service
           command: ["/bin/sh","-c"]
-          args: ["sleep 10s && python manage.py runserver 0.0.0.0:8000"]
+          args: ["sleep 10s; python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
           # command: ["./manage.py", "runserver", "0.0.0.0:8000"]
-      restartPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todolist-v2
+  labels:
+    app: todolist
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todolist
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: todolist
+        version: v2
+    spec:
+      containers:
+        - name: todolist
+          image: patrondiana13/todolist-dsti-devops:v2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: HOST
+              value: postgres-service
+          command: ["/bin/sh","-c"]
+          args: ["sleep 10s; python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+          # command: ["./manage.py", "runserver", "0.0.0.0:8000"]
