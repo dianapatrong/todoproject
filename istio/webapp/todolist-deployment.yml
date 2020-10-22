@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django
+  labels:
+    app: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-pod
+  template:
+    metadata:
+      labels:
+        app: django-pod
+    spec:
+      containers:
+        - name: django
+          image: patrondiana13/todolist-dsti-devops:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: HOST
+              value: postgres-service
+          command: ["/bin/sh","-c"]
+          args: ["sleep 10s && python manage.py runserver 0.0.0.0:8000"]
+          # command: ["./manage.py", "runserver", "0.0.0.0:8000"]
+      restartPolicy: Always
