@@ -25,6 +25,12 @@ expects a request and a response.
 Install postgress
 Install requirements 
 
+```
+python manage.py migrate
+export HOST=127.0.0.1
+python manage.py runserver `
+```
+
 ### Run unit tests
 To run the unit tests: 
 
@@ -127,11 +133,13 @@ across clusters of hosts. It works with a range of container tools, including Do
 To get started execute the following commands, make sure you are on the root directory of the project: 
 ````
 $ minikube start --vm-driver=virtualbox
+$ minikube dashboard
 $ kubectl apply -f k8s/postgres
 $ kubectl apply -f k8s/webapp
 $ kubectl get services
 $ minikube service django-service
 ````
+
 
 The last command will open a browser with the application and the following info: 
 
@@ -151,6 +159,24 @@ $ kubectl delete -f k8s/webapp
 $ minikube delete
 ```
 
+## ISTIO
+
+```
+minikube start
+$ curl -L https://istio.io/downloadIstio | sh -
+$ cd istio-1.7.3
+$ export PATH=$PWD/bin:$PATH
+$ istioctl install --set profile=demo
+$ kubectl label namespace default istio-injection=enabled
+$ kubectl apply -f istio/postgres
+$ kubectl apply -f istio/webapp 
+
+istioctl analyze
+
+$kubectl apply -f samples/addons
+$ while ! kubectl wait --for=condition=available --timeout=600s deployment/kiali -n istio-system; do sleep 1; done
+$ istioctl dashboard kiali
+```
 ## ERRORS 
 psql -h localhost -U postgres
 CREATE USER todouser WITH PASSWORD 'supersecretpassword' CREATEDB;
@@ -174,8 +200,11 @@ psql todo_proj -c "GRANT ALL ON ALL FUNCTIONS IN SCHEMA public to todouser;"
 Creating test database for alias 'default'...
 Got an error creating the test database: permission denied to create database
 
-
- psql -d todo_proj -U dpatron 
+Kubernetes: 
+ psql -d postgres -U todouser 
  todo_proj=# ALTER USER todouser CREATEDB; 
 
 ""
+
+psql: error: could not connect to server: FATAL:  database "todouser" does not exist
+su - postgres
