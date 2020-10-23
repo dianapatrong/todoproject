@@ -23,5 +23,6 @@ spec:
           env:
             - name: HOST
               value: postgres-service
-          command: ["./manage.py", "runserver", "0.0.0.0:8000"]
+          command: ["/bin/sh","-c"]
+          args: ["sleep 3s; python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
       restartPolicy: Always
