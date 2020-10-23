@@ -1,8 +1,10 @@
 # To-do list
 This project will resemble a to-do list where you can track all of the tasks that you need to complete, the user will be
-able to create, update and delete tasks in the list. 
+able to create, update and delete tasks in such list. 
 
 This basic application is written in Python, it uses Django web framework and Postgres as the database. 
+
+> ⚠️ _The following instructions describe the process to setup and run the application using various tools in MacOS environmnent._ 
 
 ## Django
 Django runs on an Model View Template system:
@@ -21,25 +23,46 @@ expects a request and a response.
 **Admin**: Deals with how you want to view your models in the django admin.
 
 ## Setup local environment 
-
-Install postgress
-Install requirements 
-
+Assuming you have ``brew`` installed you can install postgres, optionally you can download it from their site: https://www.postgresql.org/download/
 ```
-python manage.py migrate
-export HOST=127.0.0.1
-python manage.py runserver `
+$ brew install postgresql
+$ brew services start postgresql
+$ psql postgres
+```
+Create and activate the virtual environment: 
+```
+$ python3 -m venv venv
+$ source venv/bin/activate
+```
+Install the requirements and create the necessary tables in the database: 
+```
+$ pip install -r requierements.txt 
+$ export HOST=localhost
+$ python manage.py migrate
 ```
 
+Run the application: 
+```
+$ python manage.py runserver 
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+October 23, 2020 - 01:16:02
+Django version 3.0.3, using settings 'todoproject.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+```
 ### Run unit tests
-To run the unit tests: 
+
+Unit test can be found in [todoapp/tests.py](todoapp/tests.py), to run them execute the following commands: 
 
 ```
- $ export HOST=localhost
+ $ export HOST=localhost 
  $ python manage.py test
 ```
 
-The output should be something like: 
+The output should be **_OK_** and something like: 
 ```
 Creating test database for alias 'default'...
 System check identified no issues (0 silenced).
@@ -55,7 +78,7 @@ Destroying test database for alias 'default'...
 **GitHub Actions** is a continuous integration that makes it easy to automate all your software workflows. 
 It builds, test and deploys code right from GitHub.
 
-> NOTE: I had used Travis CI but after a few issues with the provisioning of builds out of knowhere
+> ℹ️ I had used Travis CI but after a few issues with the provisioning of builds out of knowhere
 > I decided to change to GitHub Actions
 
 **Heroku** is a cloud platform that lets you build, deliver, monitor and scale applications. For this app, Heroku
@@ -65,8 +88,7 @@ For this project, the workflows are described in [.github/workflows](.github/wor
 * Run unit tests: will only run only on Pull Requests and when a merge to master happens
 * Deploy to Heroku: will be trigger only when there's a merge to master 
 
-
-Useful commands: 
+Some commands useful for debugging: 
 * `heroku run bash -a todolist-dsti-devops` 
 * `psql $DATABASE_URL`
 
@@ -113,7 +135,7 @@ $ docker-compose build
 $ docker-compose up
 ```
 
-> NOTE: `depends_on` does not wait for db to be "ready" before starting web - only until it's running
+> ℹ️  `depends_on` does not wait for db to be "ready" before starting web - only until it's running
 
 After that you can go to http://0.0.0.0:8000/ to test the application
 
@@ -139,7 +161,6 @@ $ kubectl apply -f k8s/webapp
 $ kubectl get services
 $ minikube service django-service
 ````
-
 
 The last command will open a browser with the application and the following info: 
 
@@ -185,9 +206,22 @@ $ istioctl analyze
 To know in which host is your application running to the following: 
 ```
 $ minikube service todolist
+|-----------|----------|-------------|-----------------------------|
+| NAMESPACE |   NAME   | TARGET PORT |             URL             |
+|-----------|----------|-------------|-----------------------------|
+| default   | todolist | http/8000   | http://192.168.99.114:31018 |
+|-----------|----------|-------------|-----------------------------|
+🎉  Opening service default/todolist in default browser...
+
 ```
 
-> NOTE: When routing to different versions of the application I had to force refresh without cache in chrome, use 
+This will open a browser with one of the two versions of the app: 
+
+v1            |  v2
+:-------------------------:|:-------------------------:
+![v1](images/istio-v1.png)  | ![v1](images/istio-v2.png) 
+
+> ℹ️  When routing to different versions of the application I had to force refresh without cache in chrome, use 
 > **Command** + **Shift** + **R**  if you are using a Mac; optionally you can open another browser. 
 
 Istio can integrate with telemetry application to gain an understanding of the structure of the service mesh, 
@@ -198,7 +232,7 @@ $ kubectl apply -f istio-1.7.3/samples/addons
 $ while ! kubectl wait --for=condition=available --timeout=600s deployment/kiali -n istio-system; do sleep 1; done
 ```
 
-> NOTE: If there are errors trying to install the addons, try running the command again. There may be some timing 
+> ❗ If there are errors trying to install the addons, try running the command again. There may be some timing 
 > issues which will be resolved when the command is run again.
 
 Access the Kiali dashboard
