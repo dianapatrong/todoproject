@@ -27,7 +27,29 @@ Assuming you have ``brew`` installed you can install postgres, optionally you ca
 ```
 $ brew install postgresql
 $ brew services start postgresql
+```
+Create user for the application and give permission to create db (as this will be used for the unit tests) : 
+```
 $ psql postgres
+postgres=# CREATE USER todouser WITH PASSWORD 'supersecretpassword' CREATEDB;
+CREATE ROLE
+postgres=# GRANT ALL ON ALL TABLES IN SCHEMA public to todouser;
+GRANT
+postgres=# GRANT ALL ON ALL SEQUENCES IN SCHEMA public to todouser;
+GRANT
+postgres=# GRANT ALL ON ALL FUNCTIONS IN SCHEMA public to todouser;
+GRANT
+```
+
+Install python3: 
+```
+$ brew install python@3.7
+$ echo 'export PATH="/usr/local/opt/python@3.7/bin:$PATH"' >> ~/.zshrc
+$ export LDFLAGS="-L/usr/local/opt/python@3.7/lib"
+$ export PKG_CONFIG_PATH="/usr/local/opt/python@3.7/lib/pkgconfig"
+$ source ~/.zshrc
+$ python3 --version
+Python 3.7.9
 ```
 Create and activate the virtual environment: 
 ```
@@ -36,7 +58,7 @@ $ source venv/bin/activate
 ```
 Install the requirements and create the necessary tables in the database: 
 ```
-$ pip install -r requierements.txt 
+$ pip install -r requirements.txt 
 $ export HOST=localhost
 $ python manage.py migrate
 ```
@@ -78,7 +100,7 @@ Destroying test database for alias 'default'...
 **GitHub Actions** is a continuous integration that makes it easy to automate all your software workflows. 
 It builds, test and deploys code right from GitHub.
 
-> ℹ️ I had used Travis CI but after a few issues with the provisioning of builds out of knowhere
+> ℹ️  I had used Travis CI but after a few issues with the provisioning of builds out of knowhere
 > I decided to change to GitHub Actions
 
 **Heroku** is a cloud platform that lets you build, deliver, monitor and scale applications. For this app, Heroku
@@ -88,7 +110,9 @@ For this project, the workflows are described in [.github/workflows](.github/wor
 * Run unit tests: will only run only on Pull Requests and when a merge to master happens
 * Deploy to Heroku: will be trigger only when there's a merge to master 
 
-Some commands useful for debugging: 
+The application can be found in https://todolist-dsti-devops.herokuapp.com/  (it might take a bit to load 😉)
+
+Some commands useful for debugging in Heroku: 
 * `heroku run bash -a todolist-dsti-devops` 
 * `psql $DATABASE_URL`
 
@@ -96,12 +120,16 @@ Some commands useful for debugging:
 **Vagrant** is a tool for building and maintaining portable virtual software development environments, it 
 also has integration with **Ansible** as a provisioner for these virtual machines. 
 
-To run the application make sure you have Virtualbox and Vagrant already installed and `cd` into the root directory
-of the project: 
+To run the application make sure you have [Virtualbox][https://www.virtualbox.org/wiki/Downloads] and [Vagrant](https://www.vagrantup.com/downloads.html)
+ already  installed and `cd` into the root directory of the project: 
 ```
 $ vagrant up
 ```
-Wait for it to provision and the app will be running on: http://20.20.20.2:8000/ and http://localhost:8080/
+⏳ Wait for it to provision 
+> ⚠️  If you have the following error: "_Permission denied (publickey). fatal: Could not read from remote repository._" 
+> make sure you have added the correct key linked the repository were you have access:  `ssh-add ~/.ssh/your_key`
+
+The app will be running on: http://20.20.20.2:8000/ and http://localhost:8080/
 this is because we have the following lines in the [Vagrantfile](Vagrantfile): 
 ```
 server.vm.network :private_network, ip: "20.20.20.2"
@@ -126,16 +154,26 @@ application and installs requierements.
 the services will be exposed, in this case I have the **django web application** exposed on port **8000** and the
  postgres db exposed on port **5432**.
 
-The image for the dockerfile can be found in **DockerHub** and can be downloaded via:
-`docker pull patrondiana13/todolist-dsti-devops`
+The image for the dockerfile can be found in **[DockerHub](https://hub.docker.com/repository/docker/patrondiana13/todolist-dsti-devops)** 
+and can be downloaded via: `docker pull patrondiana13/todolist-dsti-devops`
 
-To run the application be sure to bee in the root directory of the project and execute the following commands: 
+To run the application make sure you have [Docker](https://docs.docker.com/docker-for-mac/install/) installed, 
+go to the root directory of the project and execute the following command: 
 ```
-$ docker-compose build 
 $ docker-compose up
+web_1  | Watching for file changes with StatReloader
+web_1  | Performing system checks...
+web_1  | 
+web_1  | System check identified no issues (0 silenced).
+web_1  | October 23, 2020 - 03:43:42
+web_1  | Django version 3.1.2, using settings 'todoproject.settings'
+web_1  | Starting development server at http://0.0.0.0:8000/
+web_1  | Quit the server with CONTROL-C.
+
+
 ```
 
-> ℹ️  `depends_on` does not wait for db to be "ready" before starting web - only until it's running
+> ℹ️  `depends_on` in the docker-compose file does not wait for db to be "ready" before starting web - only until it's running
 
 After that you can go to http://0.0.0.0:8000/ to test the application
 
@@ -152,26 +190,38 @@ across clusters of hosts. It works with a range of container tools, including Do
 
 **Minikube** is a tool that lets you run Kubernetes locally. Minikube runs a single-node Kubernetes cluster on your personal computer
 
-To get started execute the following commands, make sure you are on the root directory of the project: 
+To get started execute the following commands, make sure you are on the root directory of the project and have 
+(minikube)[https://minikube.sigs.k8s.io/docs/start/] installed: 
 ````
 $ minikube start --vm-driver=virtualbox
 $ minikube dashboard
+minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
 $ kubectl apply -f k8s/postgres
 $ kubectl apply -f k8s/webapp
 $ kubectl get services
+NAME               TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
+django-service     NodePort    10.108.46.7   <none>        8000:32589/TCP   5s
+kubernetes         ClusterIP   10.96.0.1     <none>        443/TCP          3m5s
+postgres-service   NodePort    10.99.5.131   <none>        5432:30877/TCP   11s
+$ kubectl get pods               
+NAME                                   READY   STATUS    RESTARTS   AGE
+django-79995b5db9-4ncmw                1/1     Running   2          63s
+postgres-deployment-84d6bf49c8-4mvcp   1/1     Running   0          71s
 $ minikube service django-service
-````
-
-The last command will open a browser with the application and the following info: 
-
-````
 |-----------|----------------|-------------|-----------------------------|
 | NAMESPACE |      NAME      | TARGET PORT |             URL             |
 |-----------|----------------|-------------|-----------------------------|
-| default   | django-service |        8000 | http://192.168.99.105:32697 |
+| default   | django-service |        8000 | http://192.168.99.100:30934 |
 |-----------|----------------|-------------|-----------------------------|
 🎉  Opening service default/django-service in default browser...
 ````
+The last command will open a browser with the application running.
 
 For the cleanup: 
 ```
@@ -181,9 +231,11 @@ $ minikube delete
 ```
 
 ## Service mesh using Istio
-
+**Istio** addresses the challenges developers and operators face as monolithic applications transition towards a 
+distributed microservice architecture. It makes it easy to create a network of deployed services with load balancing, 
+service-to-service authentication, monitoring, and more, with few or no code changes in service code.
 ```
-$ minikube start
+$ minikube start --vm-driver=virtualbox
 $ curl -L https://istio.io/downloadIstio | sh -
 $ cd istio-1.7.3
 $ export PATH=$PWD/bin:$PATH
@@ -248,34 +300,3 @@ $ kubectl delete -f istio/webapp
 $ kubectl delete -f istio/postgres
 $ minikube delete
 ```
-## ERRORS 
-psql -h localhost -U postgres
-CREATE USER todouser WITH PASSWORD 'supersecretpassword' CREATEDB;
-CREATE DATABASE todo_proj; 
-
-
-
-Login as PostgreSQL Superuser "postgres" via "psql" Client
-sudo -u postgres psql
-
-
-ERROR: django.db.utils.ProgrammingError: permission denied for table django_migrations
-
-https://stackoverflow.com/questions/38944551/steps-to-troubleshoot-django-db-utils-programmingerror-permission-denied-for-r
-
-psql todo_proj -c "GRANT ALL ON ALL TABLES IN SCHEMA public to todouser;"
-psql todo_proj -c "GRANT ALL ON ALL SEQUENCES IN SCHEMA public to todouser;"
-psql todo_proj -c "GRANT ALL ON ALL FUNCTIONS IN SCHEMA public to todouser;"
-
-
-Creating test database for alias 'default'...
-Got an error creating the test database: permission denied to create database
-
-Kubernetes: 
- psql -d postgres -U todouser 
- todo_proj=# ALTER USER todouser CREATEDB; 
-
-""
-
-psql: error: could not connect to server: FATAL:  database "todouser" does not exist
-su - postgres
