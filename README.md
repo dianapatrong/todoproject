@@ -159,23 +159,60 @@ $ kubectl delete -f k8s/webapp
 $ minikube delete
 ```
 
-## ISTIO
+## Service mesh using Istio
 
 ```
-minikube start
+$ minikube start
 $ curl -L https://istio.io/downloadIstio | sh -
 $ cd istio-1.7.3
 $ export PATH=$PWD/bin:$PATH
+```
+
+Return to the root directory of the project and deploy: 
+``` 
+$ cd ..
 $ istioctl install --set profile=demo
 $ kubectl label namespace default istio-injection=enabled
 $ kubectl apply -f istio/postgres
 $ kubectl apply -f istio/webapp 
+```
+Make sure there are no issues with the configuration: 
+```
+$ istioctl analyze 
+✔ No validation issues found when analyzing namespace: default.
+```
 
-istioctl analyze
+To know in which host is your application running to the following: 
+```
+$ minikube service todolist
+```
 
-$kubectl apply -f samples/addons
+> NOTE: When routing to different versions of the application I had to force refresh without cache in chrome, use 
+> **Command** + **Shift** + **R**  if you are using a Mac; optionally you can open another browser. 
+
+Istio can integrate with telemetry application to gain an understanding of the structure of the service mesh, 
+display the topology and analyze the health of the mesh, following up we will deploy Kiali dashboard
+
+```
+$ kubectl apply -f istio-1.7.3/samples/addons
 $ while ! kubectl wait --for=condition=available --timeout=600s deployment/kiali -n istio-system; do sleep 1; done
+```
+
+> NOTE: If there are errors trying to install the addons, try running the command again. There may be some timing 
+> issues which will be resolved when the command is run again.
+
+Access the Kiali dashboard
+```
 $ istioctl dashboard kiali
+```
+
+![Istio mesh](images/istio-mesh.png)
+
+For the cleanup: 
+```
+$ kubectl delete -f istio/webapp
+$ kubectl delete -f istio/postgres
+$ minikube delete
 ```
 ## ERRORS 
 psql -h localhost -U postgres
