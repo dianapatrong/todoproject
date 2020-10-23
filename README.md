@@ -1,8 +1,10 @@
 # To-do list
 This project will resemble a to-do list where you can track all of the tasks that you need to complete, the user will be
-able to create, update and delete tasks in the list. 
+able to create, update and delete tasks in such list. 
 
 This basic application is written in Python, it uses Django web framework and Postgres as the database. 
+
+> ⚠️ _The following instructions describe the process to setup and run the application using various tools in MacOS environmnent._ 
 
 ## Django
 Django runs on an Model View Template system:
@@ -21,26 +23,72 @@ expects a request and a response.
 **Admin**: Deals with how you want to view your models in the django admin.
 
 ## Setup local environment 
+Assuming you have ``brew`` installed you can install postgres, optionally you can download it from their site: https://www.postgresql.org/download/
+```
+$ brew install postgresql
+$ brew services start postgresql
+$ psql postgres
+```
+Create and activate the virtual environment: 
+```
+$ python3 -m venv venv
+$ source venv/bin/activate
+```
+Install the requirements and create the necessary tables in the database: 
+```
+$ pip install -r requierements.txt 
+$ export HOST=localhost
+$ python manage.py migrate
+```
 
-Install postgress
-Install requirements 
+Run the application: 
+```
+$ python manage.py runserver 
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+October 23, 2020 - 01:16:02
+Django version 3.0.3, using settings 'todoproject.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+```
+### Run unit tests
+
+Unit test can be found in [todoapp/tests.py](todoapp/tests.py), to run them execute the following commands: 
+
+```
+ $ export HOST=localhost 
+ $ python manage.py test
+```
+
+The output should be **_OK_** and something like: 
+```
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.312s
+
+OK
+Destroying test database for alias 'default'...
+```
 
 ## CI/CD
 **GitHub Actions** is a continuous integration that makes it easy to automate all your software workflows. 
 It builds, test and deploys code right from GitHub.
 
-> NOTE: I had used Travis CI but after a few issues with the provisioning of builds out of knowhere
+> ℹ️ I had used Travis CI but after a few issues with the provisioning of builds out of knowhere
 > I decided to change to GitHub Actions
 
 **Heroku** is a cloud platform that lets you build, deliver, monitor and scale applications. For this app, Heroku
 was configure to deploy the application after a merge to master from a PR. 
 
 For this project, the workflows are described in [.github/workflows](.github/workflows), there are two different types:
-* Run unit tests: will only run on Pull Requests and when a merge to master happens
-* Deploy to Heroku: will only run when there's a merge to master 
+* Run unit tests: will only run only on Pull Requests and when a merge to master happens
+* Deploy to Heroku: will be trigger only when there's a merge to master 
 
-
-Useful commands: 
+Some commands useful for debugging: 
 * `heroku run bash -a todolist-dsti-devops` 
 * `psql $DATABASE_URL`
 
@@ -87,7 +135,7 @@ $ docker-compose build
 $ docker-compose up
 ```
 
-> NOTE: `depends_on` does not wait for db to be "ready" before starting web - only until it's running
+> ℹ️  `depends_on` does not wait for db to be "ready" before starting web - only until it's running
 
 After that you can go to http://0.0.0.0:8000/ to test the application
 
@@ -99,16 +147,107 @@ $ docker-compose down
 ![Docker Architecture](images/docker-architecture.png)
 
 ## Kubernetes with Minikube
+**Kubernetes** aims to provide a platform for automating deployment, scaling, and operations of application containers 
+across clusters of hosts. It works with a range of container tools, including Docker.
 
+**Minikube** is a tool that lets you run Kubernetes locally. Minikube runs a single-node Kubernetes cluster on your personal computer
+
+To get started execute the following commands, make sure you are on the root directory of the project: 
 ````
 $ minikube start --vm-driver=virtualbox
-$ kubectl apply -f k8/postgres
-$ kubectl apply -f k8/webapp
+$ minikube dashboard
+$ kubectl apply -f k8s/postgres
+$ kubectl apply -f k8s/webapp
 $ kubectl get services
 $ minikube service django-service
 ````
-The last command will open a browser with the application running 
 
+The last command will open a browser with the application and the following info: 
+
+````
+|-----------|----------------|-------------|-----------------------------|
+| NAMESPACE |      NAME      | TARGET PORT |             URL             |
+|-----------|----------------|-------------|-----------------------------|
+| default   | django-service |        8000 | http://192.168.99.105:32697 |
+|-----------|----------------|-------------|-----------------------------|
+🎉  Opening service default/django-service in default browser...
+````
+
+For the cleanup: 
+```
+$ kubectl delete -f k8s/postgres
+$ kubectl delete -f k8s/webapp
+$ minikube delete
+```
+
+## Service mesh using Istio
+
+```
+$ minikube start
+$ curl -L https://istio.io/downloadIstio | sh -
+$ cd istio-1.7.3
+$ export PATH=$PWD/bin:$PATH
+```
+
+Return to the root directory of the project and deploy: 
+``` 
+$ cd ..
+$ istioctl install --set profile=demo
+$ kubectl label namespace default istio-injection=enabled
+$ kubectl apply -f istio/postgres
+$ kubectl apply -f istio/webapp 
+```
+Make sure there are no issues with the configuration: 
+```
+$ istioctl analyze 
+✔ No validation issues found when analyzing namespace: default.
+```
+
+To know in which host is your application running to the following: 
+```
+$ minikube service todolist
+|-----------|----------|-------------|-----------------------------|
+| NAMESPACE |   NAME   | TARGET PORT |             URL             |
+|-----------|----------|-------------|-----------------------------|
+| default   | todolist | http/8000   | http://192.168.99.114:31018 |
+|-----------|----------|-------------|-----------------------------|
+🎉  Opening service default/todolist in default browser...
+
+```
+
+This will open a browser with one of the two versions of the app: 
+
+v1            |  v2
+:-------------------------:|:-------------------------:
+![v1](images/istio-v1.png)  | ![v1](images/istio-v2.png) 
+
+> ℹ️  When routing to different versions of the application I had to force refresh without cache in chrome, use 
+> **Command** + **Shift** + **R**  if you are using a Mac; optionally you can open another browser. 
+
+Istio can integrate with telemetry application to gain an understanding of the structure of the service mesh, 
+display the topology and analyze the health of the mesh, following up we will deploy Kiali dashboard
+
+```
+$ kubectl apply -f istio-1.7.3/samples/addons
+$ while ! kubectl wait --for=condition=available --timeout=600s deployment/kiali -n istio-system; do sleep 1; done
+```
+
+> ❗ If there are errors trying to install the addons, try running the command again. There may be some timing 
+> issues which will be resolved when the command is run again.
+
+Access the Kiali dashboard
+```
+$ istioctl dashboard kiali
+```
+
+![Istio mesh](images/istio-mesh.png)
+
+For the cleanup: 
+```
+$ kubectl delete -f istio/webapp
+$ kubectl delete -f istio/postgres
+$ minikube delete
+```
 ## ERRORS 
 psql -h localhost -U postgres
 CREATE USER todouser WITH PASSWORD 'supersecretpassword' CREATEDB;
@@ -132,8 +271,11 @@ psql todo_proj -c "GRANT ALL ON ALL FUNCTIONS IN SCHEMA public to todouser;"
 Creating test database for alias 'default'...
 Got an error creating the test database: permission denied to create database
 
-
- psql -d todo_proj -U dpatron 
+Kubernetes: 
+ psql -d postgres -U todouser 
  todo_proj=# ALTER USER todouser CREATEDB; 
 
 ""
+
+psql: error: could not connect to server: FATAL:  database "todouser" does not exist
+su - postgres
