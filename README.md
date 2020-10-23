@@ -120,6 +120,9 @@ Some commands useful for debugging in Heroku:
 **Vagrant** is a tool for building and maintaining portable virtual software development environments, it 
 also has integration with **Ansible** as a provisioner for these virtual machines. 
 
+* [Vagrantfile](Vagrantfile) describes the type of machine required for the project, how it is configured and how will it provision. 
+* [Playbooks](iac/roles) can be used to manage configurations of and deployments to remote machines
+
 To run the application make sure you have [Virtualbox][https://www.virtualbox.org/wiki/Downloads] and [Vagrant](https://www.vagrantup.com/downloads.html)
  already  installed and `cd` into the root directory of the project: 
 ```
